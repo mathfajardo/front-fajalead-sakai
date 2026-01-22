@@ -2,6 +2,26 @@
 import { useLayout } from "@/layout/composables/layout";
 
 const { toggleMenu, toggleDarkMode, isDarkTheme } = useLayout();
+
+import { useAuth } from "@/stores/auth";
+import { useToast } from "primevue";
+import { useRouter } from "vue-router";
+
+// função de logout
+const toast = useToast();
+const auth = useAuth();
+const router = useRouter();
+
+async function fazerLogout() {
+    toast.add({
+        severity: "success",
+        summary: "Sucesso",
+        detail: "Login realizado com sucesso",
+        life: 3000,
+    });
+    await auth.logout();
+    router.push("/login");
+}
 </script>
 
 <template>
@@ -38,6 +58,19 @@ const { toggleMenu, toggleDarkMode, isDarkTheme } = useLayout();
                 <div class="layout-topbar-menu-content">
                     <button type="button" class="layout-topbar-action">
                         <i class="pi pi-user"></i>
+                        <span>Profile</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="layout-topbar-menu hidden lg:block">
+                <div class="layout-topbar-menu-content">
+                    <button
+                        type="button"
+                        class="layout-topbar-action"
+                        @click="fazerLogout"
+                    >
+                        <i class="pi pi-sign-out text-red-500"></i>
                         <span>Profile</span>
                     </button>
                 </div>

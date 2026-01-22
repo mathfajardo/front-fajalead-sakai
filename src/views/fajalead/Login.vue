@@ -7,11 +7,13 @@ const checked = ref(false);
 // fajalead
 import axiosInstance from "@/services/http";
 import { useAuth } from "@/stores/auth";
+import { useToast } from "primevue";
 import { reactive } from "vue";
 import { useRouter } from "vue-router";
 
 const auth = useAuth();
 const router = useRouter();
+const toast = useToast();
 
 // variavel de carregamentos
 let loading = ref(false);
@@ -30,9 +32,21 @@ async function login() {
         .then((response) => {
             console.log(response);
             auth.setToken(response.data.data.token);
-            router.push("/uikit/formlayout");
+            router.push("/");
+            toast.add({
+                severity: "success",
+                summary: "Sucesso",
+                detail: response.data.message,
+                life: 3000,
+            });
         })
         .catch((error) => {
+            toast.add({
+                severity: "error",
+                summary: "Erro",
+                detail: "Erro de autenticação, tente novamente!",
+                life: 3000,
+            });
             console.log("erro: ", error);
         })
         .finally(() => {

@@ -199,7 +199,7 @@ const coresStatus = {
                 to="/leadcadastro"
                 class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg flex items-center gap-2 transition duration-200"
             >
-                <i class="bi bi-plus-circle"></i> Adicionar Lead
+                <i class="pi pi-plus-circle"></i> Adicionar Lead
             </RouterLink>
         </div>
 
@@ -302,7 +302,7 @@ const coresStatus = {
                                                     class="text-gray-600 text-sm mb-2 flex items-center"
                                                 >
                                                     <i
-                                                        class="bi bi-telephone mr-2"
+                                                        class="pi pi-phone mr-2"
                                                     ></i
                                                     >{{ lead.numero }}
                                                 </p>
@@ -310,7 +310,7 @@ const coresStatus = {
                                                     class="text-gray-500 text-xs flex items-center"
                                                 >
                                                     <i
-                                                        class="bi bi-clock mr-1"
+                                                        class="pi pi-clock mr-1"
                                                     ></i
                                                     >{{ lead.updated_at }}
                                                 </small>
@@ -325,7 +325,7 @@ const coresStatus = {
                                                     class="text-green-600 hover:text-green-700"
                                                 >
                                                     <i
-                                                        class="bi bi-whatsapp text-lg"
+                                                        class="pi pi-whatsapp text-lg"
                                                     ></i>
                                                 </a>
                                                 <div class="relative">
@@ -336,7 +336,7 @@ const coresStatus = {
                                                         id="dropdownMenuButton"
                                                     >
                                                         <i
-                                                            class="bi bi-three-dots text-lg"
+                                                            class="pi pi-ellipsis-h text-lg"
                                                         ></i>
                                                     </button>
                                                     <div

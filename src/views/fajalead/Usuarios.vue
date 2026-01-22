@@ -5,13 +5,13 @@ import { useToast } from "primevue/usetoast";
 import { onMounted, ref } from "vue";
 
 // fajalead
-let clientes = ref([]);
+let usuarios = ref([]);
 
 onMounted(() => {
     axiosInstance
-        .get("/clientes/")
+        .get("/user/")
         .then((response) => {
-            clientes.value = response.data.data;
+            usuarios.value = response.data.data;
         })
         .catch((error) => {
             console.error("Erro: ", error);
@@ -113,7 +113,7 @@ function deleteProduct() {
             toast.add({
                 severity: "success",
                 summary: "Sucesso",
-                detail: response.data.message,
+                detail: response.data.data,
                 life: 3000,
             });
         })
@@ -171,22 +171,6 @@ function deleteSelectedProducts() {
         life: 3000,
     });
 }
-
-function getStatusLabel(status) {
-    switch (status) {
-        case "INSTOCK":
-            return "success";
-
-        case "LOWSTOCK":
-            return "warn";
-
-        case "OUTOFSTOCK":
-            return "danger";
-
-        default:
-            return null;
-    }
-}
 </script>
 
 <template>
@@ -194,7 +178,7 @@ function getStatusLabel(status) {
         <div class="card">
             <Toolbar class="mb-6">
                 <template #start>
-                    <Button
+                    <!-- <Button
                         label="Novo"
                         icon="pi pi-plus"
                         severity="secondary"
@@ -209,7 +193,7 @@ function getStatusLabel(status) {
                         :disabled="
                             !selectedProducts || !selectedProducts.length
                         "
-                    />
+                    /> -->
                 </template>
 
                 <template #end>
@@ -225,20 +209,20 @@ function getStatusLabel(status) {
             <DataTable
                 ref="dt"
                 v-model:selection="selectedProducts"
-                :value="clientes"
+                :value="usuarios"
                 dataKey="id"
                 :paginator="true"
                 :rows="10"
                 :filters="filters"
                 paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                 :rowsPerPageOptions="[5, 10, 25]"
-                currentPageReportTemplate="Mostrando {first} de {last} de {totalRecords} clientes"
+                currentPageReportTemplate="Mostrando {first} de {last} de {totalRecords} usuarios"
             >
                 <template #header>
                     <div
                         class="flex flex-wrap gap-2 items-center justify-between"
                     >
-                        <h4 class="m-0">Clientes</h4>
+                        <h4 class="m-0">Usuarios</h4>
                         <IconField>
                             <InputIcon>
                                 <i class="pi pi-search" />
@@ -252,39 +236,31 @@ function getStatusLabel(status) {
                 </template>
 
                 <Column
-                    selectionMode="multiple"
-                    style="width: 3rem"
-                    :exportable="false"
-                ></Column>
-                <Column
-                    field="nome"
-                    header="Nome do cliente"
+                    field="name"
+                    header="Nome do usuario"
                     sortable
                     style="min-width: 12rem"
                 ></Column>
                 <Column
-                    field="numero"
-                    header="numero"
+                    field="email"
+                    header="Email"
                     sortable
                     style="min-width: 16rem"
                 ></Column>
                 <Column
-                    field="plano"
-                    header="Plano"
+                    field="created_at"
+                    header="Data de criação"
                     sortable
                     style="min-width: 10rem"
                 ></Column>
                 <Column
-                    field="mensalidade"
-                    header="Mensalidade"
+                    field="updated_at"
+                    header="Ultima atualização"
                     sortable
                     style="min-width: 10rem"
                 >
-                    <template #body="slotProps">
-                        {{ formatarValor(slotProps.data.mensalidade) }}
-                    </template>
                 </Column>
-                <Column :exportable="false" style="min-width: 12rem">
+                <!-- <Column :exportable="false" style="min-width: 12rem">
                     <template #body="slotProps">
                         <Button
                             icon="pi pi-pencil"
@@ -301,7 +277,7 @@ function getStatusLabel(status) {
                             @click="confirmDeleteProduct(slotProps.data)"
                         />
                     </template>
-                </Column>
+                </Column> -->
             </DataTable>
         </div>
 
