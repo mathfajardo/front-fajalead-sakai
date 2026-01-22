@@ -1,5 +1,4 @@
 <script setup>
-import FloatingConfigurator from "@/components/FloatingConfigurator.vue";
 import { ref } from "vue";
 
 const checked = ref(false);
@@ -56,7 +55,7 @@ async function login() {
 </script>
 
 <template>
-    <FloatingConfigurator />
+    <!-- <FloatingConfigurator /> -->
     <div
         class="bg-surface-50 dark:bg-surface-950 flex items-center justify-center min-h-screen min-w-[100vw] overflow-hidden"
     >
