@@ -13,12 +13,6 @@ const auth = useAuth();
 const router = useRouter();
 
 async function fazerLogout() {
-    toast.add({
-        severity: "success",
-        summary: "Sucesso",
-        detail: "Login realizado com sucesso",
-        life: 3000,
-    });
     await auth.logout();
     router.push("/login");
 }
