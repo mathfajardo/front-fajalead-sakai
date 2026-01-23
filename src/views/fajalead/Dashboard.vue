@@ -26,14 +26,12 @@ onMounted(() => {
 
             const meses = responses[3].data.data[0];
             totalLeadsMesTodos.value = Object.values(meses);
-            histogramData.value.datasets[0].data = totalLeadsMesTodos.value;
         })
         .catch((error) => {
             console.log("Erro: ", error);
         })
         .finally(() => {
             carregamento.value = false;
-            createHistogram();
         });
 });
 </script>

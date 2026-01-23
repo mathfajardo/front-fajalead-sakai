@@ -1,10 +1,19 @@
 <script setup>
 import axiosInstance from "@/services/http";
+import { useToast } from "primevue";
+import Button from "primevue/button";
+import Dialog from "primevue/dialog";
+import InputText from "primevue/inputtext";
+import Select from "primevue/select";
+import Textarea from "primevue/textarea";
 import { computed, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 
 // carregamento
 let carregamento = ref(true);
+
+// toast
+const toast = useToast();
 
 // iniciando array dos leads
 let leads = ref([]);
@@ -54,10 +63,32 @@ const modalVisivel = ref(false);
 // Status disponíveis
 const statusDisponiveis = ["Novo", "Em atendimento", "Perdido", "Convertido"];
 
+// Opções para o dropdown de status no diálogo
+const opcoesStatus = ref([
+    { label: "Novo", value: "Novo" },
+    { label: "Em atendimento", value: "Em atendimento" },
+    { label: "Perdido", value: "Perdido" },
+    { label: "Convertido", value: "Convertido" },
+]);
+
+// Controle para dropdown visível por lead
+const dropdownVisivel = ref({});
+
+// Função para alternar dropdown
+const toggleDropdown = (leadId) => {
+    dropdownVisivel.value[leadId] = !dropdownVisivel.value[leadId];
+};
+
+// Função para fechar todos os dropdowns
+const fecharDropdowns = () => {
+    dropdownVisivel.value = {};
+};
+
 // Função para abrir modal com detalhes do lead
 const abrirDetalhesLead = (lead) => {
     leadSelecionado.value = { ...lead };
     modalVisivel.value = true;
+    fecharDropdowns(); // Fecha dropdowns quando abre modal
 };
 
 // Função para fechar modal
@@ -72,79 +103,78 @@ function salvarLead() {
         (l) => l.id === leadSelecionado.value.id,
     );
 
-    // expressão regular para pegar so os numeros
+    // expressão regular para pegar só os números
     leadSelecionado.value.numero = leadSelecionado.value.numero.replace(
         /\D/g,
         "",
     );
 
-    // caso o status seja para convertido, ja envia para cadastro
+    // caso o status seja para convertido, já envia para cadastro
     if (leadSelecionado.value.status == "Convertido") {
         router.push(`/clientecadastro/${leadSelecionado.value.id}`);
+        return;
     }
 
     axiosInstance
         .put("/leads/" + leadSelecionado.value.id, leadSelecionado.value)
         .then((response) => {
-            Swal.fire({
-                position: "top-end",
-                title: response.data.message,
-                icon: "success",
-                toast: true,
-                showConfirmButton: false,
-                timer: 2000,
-                timerProgressBar: true,
-            });
             if (index !== -1) {
                 leads.value[index] = { ...leadSelecionado.value };
             }
             fecharModal();
+            toast.add({
+                severity: "success",
+                summary: "Sucesso",
+                detail: response.data.message,
+                life: 3000,
+            });
         })
         .catch((error) => {
             console.error("Erro: ", error);
-            Swal.fire({
-                title: "erro ao atualizar",
-                text: "favor entrar em contato com o admin do sistema",
-                icon: "error",
-                confirmButtonText: "Ok",
+            toast.add({
+                severity: "error",
+                summary: "Erro",
+                detail: error.data.message,
+                life: 3000,
             });
         });
 }
 
 // Função para mover lead entre colunas
-function moverLead(leadId, novoStatus) {
+function moverLead(leadId, novoStatus, event) {
+    fecharDropdowns();
+    if (event) event.stopPropagation();
+
     const index = leads.value.findIndex((l) => l.id === leadId);
     const lead = leads.value[index];
 
     lead.status = novoStatus;
 
-    // caso o status seja para convertido, ja envia para cadastro
+    // caso o status seja para convertido, já envia para cadastro
     if (novoStatus == "Convertido") {
         router.push(`/clientecadastro/${leadId}`);
+        return;
     }
 
     axiosInstance
         .put("/leads/" + leadId, lead)
         .then((response) => {
-            Swal.fire({
-                position: "top-end",
-                title: response.data.message,
-                icon: "success",
-                toast: true,
-                showConfirmButton: false,
-                timer: 2000,
-                timerProgressBar: true,
-            });
             leads.value[index] = { ...lead };
-            fecharModal();
+            fecharDropdowns();
+            toast.add({
+                severity: "success",
+                summary: "Sucesso",
+                detail: response.data.message,
+                life: 3000,
+            });
         })
         .catch((error) => {
             console.error("Erro: ", error);
-            Swal.fire({
-                title: "erro ao atualizar",
-                text: "favor entrar em contato com o admin do sistema",
-                icon: "error",
-                confirmButtonText: "Ok",
+            toast.add({
+                severity: "error",
+                summary: "Erro",
+                detail: error.data.message,
+                life: 3000,
             });
         });
 }
@@ -175,6 +205,14 @@ const coresStatus = {
     Perdido: "bg-red-600",
     Convertido: "bg-green-600",
 };
+
+// Opções para categoria (se necessário)
+const opcoesCategoria = ref([
+    "Cliente em Potencial",
+    "Cliente Atual",
+    "Cliente Inativo",
+    "Outro",
+]);
 </script>
 
 <template>
@@ -196,7 +234,7 @@ const coresStatus = {
                 Quadro de Leads
             </h1>
             <RouterLink
-                to="/leadcadastro"
+                to="/"
                 class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg flex items-center gap-2 transition duration-200"
             >
                 <i class="pi pi-plus-circle"></i> Adicionar Lead
@@ -228,50 +266,6 @@ const coresStatus = {
                                     >
                                         {{ leadsPorStatus[status].length }}
                                     </span>
-                                    <button
-                                        v-if="status == 'Novo'"
-                                        v-tippy="
-                                            'Aqui vão aparecer os leads novos'
-                                        "
-                                        class="text-white hover:text-gray-200"
-                                    >
-                                        <i
-                                            class="bi bi-question-circle ml-1"
-                                        ></i>
-                                    </button>
-                                    <button
-                                        v-if="status == 'Em atendimento'"
-                                        v-tippy="
-                                            'Aqui vão aparecer os leads em atendimento, leads que estão aqui o bot não responde!!'
-                                        "
-                                        class="text-white hover:text-gray-200"
-                                    >
-                                        <i
-                                            class="bi bi-question-circle ml-1"
-                                        ></i>
-                                    </button>
-                                    <button
-                                        v-if="status == 'Perdido'"
-                                        v-tippy="
-                                            'Aqui vão aparecer os leads perdidos'
-                                        "
-                                        class="text-white hover:text-gray-200"
-                                    >
-                                        <i
-                                            class="bi bi-question-circle ml-1"
-                                        ></i>
-                                    </button>
-                                    <button
-                                        v-if="status == 'Convertido'"
-                                        v-tippy="
-                                            'Aqui vão aparecer os leads convertidos'
-                                        "
-                                        class="text-white hover:text-gray-200"
-                                    >
-                                        <i
-                                            class="bi bi-question-circle ml-1"
-                                        ></i>
-                                    </button>
                                 </h5>
                             </div>
                         </div>
@@ -319,7 +313,7 @@ const coresStatus = {
                                                 class="flex items-center gap-2 ml-2"
                                             >
                                                 <a
-                                                    :href="`https://wa.me/55${lead.numero}`"
+                                                    :href="`https://wa.me/55${lead.numero.replace(/\D/g, '')}`"
                                                     target="_blank"
                                                     @click.stop
                                                     class="text-green-600 hover:text-green-700"
@@ -332,7 +326,11 @@ const coresStatus = {
                                                     <button
                                                         class="text-gray-400 hover:text-gray-600 p-1"
                                                         type="button"
-                                                        @click.stop
+                                                        @click.stop="
+                                                            toggleDropdown(
+                                                                lead.id,
+                                                            )
+                                                        "
                                                         id="dropdownMenuButton"
                                                     >
                                                         <i
@@ -340,7 +338,12 @@ const coresStatus = {
                                                         ></i>
                                                     </button>
                                                     <div
-                                                        class="absolute right-0 mt-1 w-48 bg-white rounded-md shadow-lg z-10 hidden border border-gray-200"
+                                                        v-if="
+                                                            dropdownVisivel[
+                                                                lead.id
+                                                            ]
+                                                        "
+                                                        class="absolute right-0 mt-1 w-48 bg-white rounded-md shadow-lg z-10 border border-gray-200"
                                                         @click.stop
                                                     >
                                                         <div class="py-1">
@@ -358,6 +361,7 @@ const coresStatus = {
                                                                     moverLead(
                                                                         lead.id,
                                                                         novoStatus,
+                                                                        $event,
                                                                     )
                                                                 "
                                                             >
@@ -401,157 +405,70 @@ const coresStatus = {
         </div>
     </div>
 
-    <!-- Modal de detalhes do lead -->
-    <div v-if="modalVisivel" class="fixed inset-0 z-50 overflow-y-auto">
-        <div
-            class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0"
-        >
-            <!-- Overlay do modal -->
-            <div
-                class="fixed inset-0 transition-opacity"
-                aria-hidden="true"
-                @click="fecharModal"
-            >
-                <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+    <!-- Diálogo para editar lead -->
+    <Dialog
+        v-model:visible="modalVisivel"
+        :style="{ width: '450px' }"
+        header="Detalhes do Lead"
+        :modal="true"
+        @hide="fecharModal"
+    >
+        <div class="flex flex-col gap-6" v-if="leadSelecionado">
+            <div>
+                <label for="nome" class="block font-bold mb-3">Nome</label>
+                <InputText
+                    id="nome"
+                    v-model.trim="leadSelecionado.nome"
+                    required="true"
+                    autofocus
+                    fluid
+                />
             </div>
-
-            <!-- Conteúdo do modal -->
-            <div
-                class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full"
-            >
-                <!-- Cabeçalho do modal -->
-                <div class="bg-blue-600 px-6 py-4">
-                    <div class="flex justify-between items-center">
-                        <h5
-                            class="text-lg font-semibold text-white flex items-center"
-                        >
-                            <i class="bi bi-person-circle mr-2"></i>Detalhes do
-                            Lead
-                        </h5>
-                        <button
-                            type="button"
-                            class="text-white hover:text-gray-200"
-                            @click="fecharModal"
-                        >
-                            <i class="bi bi-x-lg text-xl"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Corpo do modal -->
-                <div class="px-6 py-4" v-if="leadSelecionado">
-                    <div class="space-y-4">
-                        <!-- Informações básicas -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label
-                                    class="block text-sm font-medium text-gray-700 mb-1"
-                                    >Nome</label
-                                >
-                                <input
-                                    type="text"
-                                    class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    v-model="leadSelecionado.nome"
-                                />
-                            </div>
-
-                            <div>
-                                <label
-                                    class="block text-sm font-medium text-gray-700 mb-1"
-                                    >Telefone</label
-                                >
-                                <input
-                                    type="text"
-                                    class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    v-model="leadSelecionado.numero"
-                                    v-mask="'(##) ####-####'"
-                                />
-                            </div>
-                        </div>
-
-                        <!-- Status -->
-                        <div>
-                            <label
-                                class="block text-sm font-medium text-gray-700 mb-1"
-                                >Status</label
-                            >
-                            <select
-                                class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                v-model="leadSelecionado.status"
-                            >
-                                <option
-                                    v-for="status in statusDisponiveis"
-                                    :key="status"
-                                    :value="status"
-                                >
-                                    {{ nomesStatus[status] }}
-                                </option>
-                            </select>
-                        </div>
-
-                        <!-- Observações -->
-                        <div>
-                            <label
-                                class="block text-sm font-medium text-gray-700 mb-1"
-                                >Observações</label
-                            >
-                            <textarea
-                                class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                rows="4"
-                                v-model="leadSelecionado.observacoes"
-                                placeholder="Adicione observações sobre o lead..."
-                            ></textarea>
-                        </div>
-
-                        <!-- Informações adicionais -->
-                        <div class="bg-gray-50 rounded-lg p-4">
-                            <h6 class="text-sm font-medium text-gray-700 mb-2">
-                                Informações Adicionais
-                            </h6>
-                            <div
-                                class="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm"
-                            >
-                                <div class="flex items-center text-gray-600">
-                                    <i class="bi bi-calendar mr-2"></i>
-                                    <span
-                                        >Data de criação:
-                                        {{ leadSelecionado.created_at }}</span
-                                    >
-                                </div>
-                                <div class="flex items-center text-gray-600">
-                                    <i class="bi bi-arrow-clockwise mr-2"></i>
-                                    <span
-                                        >Última atualização:
-                                        {{ leadSelecionado.updated_at }}</span
-                                    >
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Rodapé do modal -->
-                <div
-                    class="px-6 py-4 bg-gray-50 rounded-b-lg flex justify-end gap-3"
+            <div>
+                <label for="numero" class="block font-bold mb-3">Número</label>
+                <InputText
+                    id="numero"
+                    v-model.trim="leadSelecionado.numero"
+                    required="true"
+                    fluid
+                />
+            </div>
+            <div>
+                <label for="observacao" class="block font-bold mb-3"
+                    >Observação</label
                 >
-                    <button
-                        type="button"
-                        class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition duration-200"
-                        @click="fecharModal"
-                    >
-                        Cancelar
-                    </button>
-                    <button
-                        type="button"
-                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200 flex items-center gap-2"
-                        @click="salvarLead"
-                    >
-                        <i class="bi bi-save"></i>Salvar Alterações
-                    </button>
-                </div>
+                <Textarea
+                    id="observacao"
+                    v-model="leadSelecionado.observacao"
+                    rows="3"
+                    cols="20"
+                    fluid
+                />
+            </div>
+            <div>
+                <label for="status" class="block font-bold mb-3">Status</label>
+                <Select
+                    id="status"
+                    v-model="leadSelecionado.status"
+                    :options="opcoesStatus"
+                    optionLabel="label"
+                    optionValue="value"
+                    placeholder="Selecione um Status"
+                    fluid
+                ></Select>
             </div>
         </div>
-    </div>
+
+        <template #footer>
+            <Button
+                label="Cancelar"
+                icon="pi pi-times"
+                text
+                @click="fecharModal"
+            />
+            <Button label="Salvar" icon="pi pi-check" @click="salvarLead" />
+        </template>
+    </Dialog>
 </template>
 
 <style scoped>
