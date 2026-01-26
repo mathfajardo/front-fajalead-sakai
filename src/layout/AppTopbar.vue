@@ -27,8 +27,9 @@ async function fazerLogout() {
             >
                 <i class="pi pi-bars"></i>
             </button>
-            <router-link to="/" class="layout-topbar-logo">
-                <span>FajaLead</span>
+            
+            <router-link to="/" class="layout-topbar-logo pt-3">
+                <img src="/favicon.ico" alt="" style="width: 7rem;">
             </router-link>
         </div>
 
