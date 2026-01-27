@@ -1,8 +1,8 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-    baseURL: "https://fajalead.api.shopb2b.com.br/api",
-    // baseURL: "http://localhost:8000/api",
+    // baseURL: "https://fajalead.api.shopb2b.com.br/api",
+    baseURL: "http://localhost:8000/api",
     headers: {
         "Content-Type": "application/json",
     },

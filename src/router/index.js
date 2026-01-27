@@ -50,6 +50,14 @@ const router = createRouter({
                         auth: true,
                     },
                 },
+                {
+                    path: "/fajalead/prompt",
+                    name: "prompt",
+                    component: () => import("@/views/fajalead/Prompt.vue"),
+                    meta: {
+                        auth: true,
+                    },
+                },
             ],
         },
         {

@@ -32,6 +32,11 @@ const model = ref([
                 icon: "pi pi-fw pi-users",
                 to: "/fajalead/usuarios",
             },
+            {
+                label: "Chatbot - Prompt",
+                icon: "pi pi-fw pi-send",
+                to: "/fajalead/prompt",
+            },
         ],
     },
 ]);
