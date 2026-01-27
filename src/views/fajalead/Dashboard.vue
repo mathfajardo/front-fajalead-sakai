@@ -1,5 +1,4 @@
 <script setup>
-import RevenueStreamWidget from "@/components/dashboard/RevenueStreamWidget.vue";
 
 import axiosInstance from "@/services/http";
 import { onMounted, ref } from "vue";
@@ -104,8 +103,9 @@ onMounted(() => {
                 </div>
             </div>
         </div>
-        <div class="col-span-12 xl:col-span-6">
+        <!--<div class="col-span-12 xl:col-span-6">
             <RevenueStreamWidget />
         </div>
+        -->
     </div>
 </template>
