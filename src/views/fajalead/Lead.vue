@@ -233,12 +233,12 @@ const opcoesCategoria = ref([
             <h1 class="text-2xl md:text-3xl font-bold text-gray-800">
                 Quadro de Leads
             </h1>
-            <RouterLink
+            <!-- <RouterLink
                 to="/"
                 class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg flex items-center gap-2 transition duration-200"
             >
                 <i class="pi pi-plus-circle"></i> Adicionar Lead
-            </RouterLink>
+            </RouterLink> -->
         </div>
 
         <!-- Quadro Kanban -->
@@ -267,6 +267,10 @@ const opcoesCategoria = ref([
                                         {{ leadsPorStatus[status].length }}
                                     </span>
                                 </h5>
+                                <i v-if="status == 'Novo'" class="pi pi-question-circle" v-tooltip="'Aqui são os novos leads'"></i>
+                                <i v-if="status == 'Em atendimento'" class="pi pi-question-circle" v-tooltip="'Aqui são os leads em atendimento (a IA não responde)'"></i>
+                                <i v-if="status == 'Perdido'" class="pi pi-question-circle" v-tooltip="'Aqui são os leads perdidos'"></i>
+                                <i v-if="status == 'Convertido'" class="pi pi-question-circle" v-tooltip="'Aqui são os leads convertidos'"></i>
                             </div>
                         </div>
 
