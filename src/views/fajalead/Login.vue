@@ -32,12 +32,6 @@ async function login() {
             console.log(response);
             auth.setToken(response.data.data.token);
             router.push("/");
-            toast.add({
-                severity: "success",
-                summary: "Sucesso",
-                detail: response.data.message,
-                life: 3000,
-            });
         })
         .catch((error) => {
             toast.add({
@@ -86,7 +80,7 @@ async function login() {
                         >
                     </div>
 
-                    <div>
+                    <div @keyup.enter="login">
                         <label
                             for="email1"
                             class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2"
@@ -119,22 +113,23 @@ async function login() {
                             class="flex items-center justify-between mt-2 mb-8 gap-8"
                         >
                             <div class="flex items-center">
-                                <Checkbox
+                                <!-- <Checkbox
                                     v-model="checked"
                                     id="rememberme1"
                                     binary
                                     class="mr-2"
                                 ></Checkbox>
-                                <label for="rememberme1">Lembrar</label>
+                                <label for="rememberme1">Lembrar</label> -->
                             </div>
                         </div>
                         <Button
-                            label="Entrar"
                             class="w-full"
                             as="router-link"
                             @click="login"
                             to="/"
-                        ></Button>
+                        >
+                            <span v-if="loading" class="animate-spin"><i class="pi pi-spin pi-spinner"></i></span>Entrar
+                        </Button>
                     </div>
                 </div>
             </div>
