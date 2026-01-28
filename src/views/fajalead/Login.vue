@@ -69,7 +69,9 @@ async function login() {
                     class="w-full bg-surface-0 dark:bg-surface-900 py-20 px-8 sm:px-20"
                     style="border-radius: 53px"
                 >
+                    
                     <div class="text-center mb-8">
+                        <img src="/favicon.ico" alt="Logo" class="w-40 h-40 mx-auto">
                         <div
                             class="text-surface-900 dark:text-surface-0 text-3xl font-medium mb-4"
                         >
