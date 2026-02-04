@@ -17,8 +17,26 @@ const toast = useToast();
 
 // iniciando array dos leads
 let leads = ref([]);
+let leadsOriginal = ref([]);
+let termoPesquisa = ref([]);
 
 const router = useRouter();
+
+// pesquissa
+function pesquisar() {
+    if (!termoPesquisa.value.trim()) {
+        leads.value = leadsOriginal.value;
+        return;
+    }
+
+    const termo = termoPesquisa.value.toLowerCase();
+    leads.value = leadsOriginal.value.filter(lead =>
+        lead.nome.toLowerCase().includes(termo) ||
+        lead.numero?.toLowerCase().includes(termo)
+    );
+
+    // termoPesquisa.value = '';
+}
 
 // Controlar quantos leads mostrar por status
 let leadsVisiveisPorStatus = ref({
@@ -46,6 +64,7 @@ onMounted(() => {
         .get("/leads/")
         .then((response) => {
             leads.value = response.data.data;
+            leadsOriginal.value = response.data.data;
             console.log("leads: ", leads.value[1]);
             carregamento.value = false;
             console.log(leads.value);
@@ -226,6 +245,12 @@ const coresStatus = {
             >
                 <i class="pi pi-plus-circle"></i> Adicionar Lead
             </RouterLink> -->
+            <IconField>
+                <InputIcon>
+                    <i class="pi pi-search" />
+                </InputIcon>
+                <InputText v-model="termoPesquisa" placeholder="Pesquisar..." @keyup.enter="pesquisar" />
+            </IconField>
         </div>
 
         <!-- Quadro Kanban -->
